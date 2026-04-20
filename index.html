@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Something Special for the Special One</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{min-height:100vh;background:#0a0010;font-family:'Lato',sans-serif;overflow-x:hidden;}
+  .stars{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+  .star{position:absolute;background:white;border-radius:50%;animation:twinkle var(--d,3s) ease-in-out infinite alternate;opacity:0;}
+  @keyframes twinkle{0%{opacity:0;transform:scale(0.8);}100%{opacity:var(--o,.9);transform:scale(1.2);}}
+  .hearts-float{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;}
+  .floating-heart{position:absolute;bottom:-50px;animation:floatUp var(--dur,6s) ease-in var(--delay,0s) infinite;opacity:0;}
+  @keyframes floatUp{0%{transform:translateY(0) rotate(0deg);opacity:0;}10%{opacity:.6;}90%{opacity:.2;}100%{transform:translateY(-110vh) rotate(360deg);opacity:0;}}
+  .container{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;}
+  .page{display:none;width:100%;flex-direction:column;align-items:center;}
+  .page.active{display:flex;}
+
+  /* Amplop */
+  .envelope-wrap{perspective:1000px;margin-bottom:24px;}
+  .envelope{width:320px;height:200px;position:relative;cursor:pointer;transform-style:preserve-3d;transition:transform .3s ease;}
+  .envelope:hover{transform:scale(1.05) rotateY(-5deg);}
+  .env-body{width:100%;height:100%;background:linear-gradient(135deg,#e8d5c4 0%,#f5ebe0 50%,#e8d5c4 100%);border-radius:8px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:hidden;}
+  .env-body::before{content:'';position:absolute;bottom:0;left:0;width:0;height:0;border-style:solid;border-width:0 0 100px 160px;border-color:transparent transparent #d4bba0 transparent;}
+  .env-body::after{content:'';position:absolute;bottom:0;right:0;width:0;height:0;border-style:solid;border-width:100px 160px 0 0;border-color:#d4bba0 transparent transparent transparent;}
+  .env-flap{position:absolute;top:0;left:0;width:0;height:0;border-style:solid;border-width:105px 160px 0 160px;border-color:#c9a98a transparent transparent transparent;z-index:2;transition:transform .6s ease;transform-origin:top center;}
+  .envelope.open .env-flap{transform:rotateX(180deg);}
+  .env-seal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;background:#8b2252;border-radius:50%;z-index:3;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 0 3px #a32d66,0 0 20px rgba(139,34,82,.6);transition:opacity .3s;cursor:pointer;}
+  .envelope.open .env-seal{opacity:0;pointer-events:none;}
+  .click-hint{text-align:center;color:rgba(255,255,255,.5);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;animation:pulse 2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+
+  /* Surat */
+  .letter-card{max-width:520px;width:100%;background:linear-gradient(160deg,#fdf8f2 0%,#fef9f4 100%);border-radius:4px;padding:50px 45px;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05);opacity:0;transform:translateY(30px) scale(.95);transition:opacity .8s ease,transform .8s ease;position:relative;overflow:hidden;}
+  .letter-card.visible{opacity:1;transform:translateY(0) scale(1);}
+  .letter-card::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;background:linear-gradient(180deg,#8b2252,#c9507a,#8b2252);}
+  .letter-rose{position:absolute;top:-10px;right:30px;font-size:80px;opacity:.07;transform:rotate(15deg);pointer-events:none;}
+  .date-line{font-size:12px;color:#a08070;letter-spacing:3px;text-transform:uppercase;margin-bottom:32px;font-weight:300;}
+  .salutation{font-family:'Playfair Display',serif;font-style:italic;font-size:26px;color:#4a1528;margin-bottom:28px;line-height:1.3;}
+  .body-text{font-family:'Lato',sans-serif;font-size:15.5px;line-height:1.9;color:#3a2a2a;margin-bottom:20px;font-weight:300;}
+  .highlight{color:#8b2252;font-family:'Playfair Display',serif;font-style:italic;}
+  .closing{margin-top:36px;font-family:'Playfair Display',serif;font-style:italic;color:#4a1528;font-size:17px;line-height:2;}
+  .signature{font-family:'Playfair Display',serif;font-size:28px;color:#8b2252;margin-top:8px;position:relative;display:inline-block;}
+  .signature::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,#8b2252,transparent);}
+  .postscript{margin-top:24px;padding-top:20px;border-top:1px solid rgba(139,34,82,.15);font-size:13px;color:#a08070;font-style:italic;line-height:1.7;}
+  .gallery-btn-wrap{margin-top:28px;padding-top:24px;border-top:1px solid rgba(139,34,82,.15);display:flex;justify-content:center;}
+  .gallery-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 28px;background:transparent;border:1px solid rgba(139,34,82,.5);color:#8b2252;border-radius:30px;cursor:pointer;font-family:'Lato',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;transition:all .3s;}
+  .gallery-btn:hover{background:#8b2252;color:#fff;border-color:#8b2252;}
+  .gallery-btn svg{width:16px;height:16px;flex-shrink:0;}
+
+
+  .back-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:30px;cursor:pointer;font-family:'Lato',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:36px;transition:all .3s;}
+  .back-btn:hover{border-color:rgba(255,255,255,.5);color:white;}
+
+  /* Grid utama */
+  .gallery-grid{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    width:100%;
+    max-width:460px;
+  }
+ 
+  /* Baris foto (3 kolom) */
+  .photo-row{
+    display:grid;
+    grid-template-columns:repeat(1,1fr);
+    gap:10px;
+  }
+ 
+  /* Baris video (2 kolom, rata tengah) */
+  .video-row{
+    display:grid;
+    grid-template-columns:repeat(1,1fr);
+    gap:10px;
+  }
+ 
+  /* Slot dasar */
+  .slot{
+    aspect-ratio:1;
+    border-radius:10px;
+    position:relative;
+    overflow:hidden;
+    cursor:pointer;
+    transition:all .3s;
+  }
+  .photo-slot{background:#1a0a18;border:1px dashed rgba(139,34,82,.4);}
+  .photo-slot:hover{border-color:rgba(139,34,82,.8);transform:scale(1.03);}
+  .video-slot{background:#0d0818;border:1px dashed rgba(120,60,180,.5);}
+  .video-slot:hover{border-color:rgba(120,60,180,.9);transform:scale(1.03);}
+ 
+  /* Media */
+  .photo-slot img{width:100%;height:100%;object-fit:cover;display:none;}
+  .photo-slot.has-img img{display:block;}
+  .photo-slot.has-img .slot-placeholder{display:none;}
+ 
+  .video-slot video{width:100%;height:100%;object-fit:cover;display:none;}
+  .video-slot.has-video video{display:block;}
+  .video-slot.has-video .slot-placeholder{display:none;}
+  .video-slot.has-video input[type=file]{display:none;}
+ 
+  /* Placeholder */
+  .slot-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;}
+  .photo-slot .slot-placeholder{color:rgba(139,34,82,.5);}
+  .video-slot .slot-placeholder{color:rgba(120,60,180,.65);}
+  .slot-placeholder svg{width:24px;height:24px;}
+  .slot-placeholder span{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;}
+ 
+  /* Input file */
+  .slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2;}
+ 
+  /* Lightbox */
+  .lightbox-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px;}
+  .lightbox-wrap.open{display:flex;}
+  .lightbox-img{max-width:90vw;max-height:75vh;border-radius:8px;object-fit:contain;}
+  .lightbox-close{position:absolute;top:20px;right:24px;background:transparent;border:none;color:rgba(255,255,255,.6);font-size:28px;cursor:pointer;line-height:1;}
+  .lightbox-close:hover{color:white;}
+ 
+  /* Modal */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#1a0a10;border:1px solid rgba(139,34,82,.3);border-radius:12px;padding:36px;width:90%;max-width:480px;color:white;}
+  .modal h3{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:20px;color:#e8a0b4;}
+  .modal label{display:block;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:6px;margin-top:16px;}
+  .modal input,.modal textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:10px 14px;color:white;font-family:'Lato',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+  .modal input:focus,.modal textarea:focus{border-color:rgba(139,34,82,.6);}
+  .modal-btns{display:flex;gap:12px;margin-top:24px;justify-content:flex-end;}
+  .btn-cancel{padding:10px 22px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:6px;cursor:pointer;font-size:13px;}
+  .btn-save{padding:10px 22px;background:#8b2252;border:none;color:white;border-radius:6px;cursor:pointer;font-size:13px;font-family:'Lato',sans-serif;}
+  .btn-save:hover{background:#a32d66;}
+</style>
+</head>
+<body>
+ 
+<div class="stars" id="stars"></div>
+<div class="hearts-float" id="hearts"></div>
+ 
+<div class="container">
+ 
+  <!-- Halaman Surat -->
+  <div id="page-letter" class="page active">
+    <div class="click-hint" id="hint">♥ klik suratnya ya sayang ♥</div>
+    <div class="envelope-wrap">
+      <div class="envelope" id="envelope" onclick="openEnvelope()">
+        <div class="env-body">
+          <div class="env-flap"></div>
+          <div class="env-seal">♥</div>
+        </div>
+      </div>
+    </div>
+ 
+    <div class="letter-card" id="letter">
+      <div class="letter-rose">♥</div>
+      <div class="date-line" id="disp-date">20 April 2026</div>
+      <div class="salutation" id="disp-salutation">Hai sayangnya mas,</div>
+      <p class="body-text">Mungkin mas gk pinter buat kata yg romantis, tp mas mau bilng sesuatu yg udh mas simpan di hati mas ke kamu.</p>
+      <p class="body-text" id="disp-body2">Hadirnya kamu di hidup mas bukn hanya warna baru di hidup mas, tp kamu <span class="highlight">adalah cahaya</span> di hidup mas. Kamu jd alasan mas untk ttp bertahan di hari mas yg berat, senyum kamu buat mas seolah lupa klo mas baru saja menjalani hari yg berat. Terkadang kehangatan dari cinta dan kasih sayang kamu buat mas berpikir "Apakah gw pantas buat dpt kasih sayang dan cinta dari dia?", "Apa gw pantas berdiri di smping dia?" Mas slalu mikir kyk gitu. Tp semakin lama mas sadar klo mas masih layak untk menerima semua itu.</p>
+      <p class="body-text">Mas bersyukur bisa miliki kamu di hidup mas. Setiap waktu yg kita habiskan, canda dan tawa yg kita keluarkan setiap hari, dan jg momen sederhana lainnya membuat mas selalu bersyukur karna Tuhan udh temuin mas sma kamu.</p>
+      <p class="body-text">Sayang, mungkin mas banyak salah dan sering buat kamu merasa sendri waktu mas kerja. Tp satu hal yg harus kamu tau, kamu selalu ada di pikiran dan hati mas. <span class="highlight">Selalu.</span></p>
+      <p class="body-text">Terima kasih sayang. Terima kasih karna kamu udh mau bertahan sejauh ini sma mas, terima kasih untk semua kasih sayang kamu ke mas. Terima kasih udh menjadi pasangan yg selalu dukung mas apapun keadaannya. Terima kasih banyak.</p>
+      <p class="body-text">Terakhir, <span class="highlight">Happy 4th Mensive Sayang.</span> Semoga kedpannya kita menjadi pasangan yg selalu diberkati olh Tuhan. Dipenuhi dgan kebahagiaan stiap hari, dan jg selalu mencintai satu sma lain. Mari trus perjuangkan cinta kita smpai Tuhan memisahkan kita.</p>
+      <div class="closing">Selalu dan selamanya,<br><span class="signature" id="disp-name">Yang mencintaimu ♥</span></div>
+      <div class="postscript" id="disp-ps">P.S. — Terima kasih udh pilih mas untk ada di sisimu setiap hari. Love you more than everything</div>
+      <div class="gallery-btn-wrap">
+        <button class="gallery-btn" onclick="goToGallery()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Something special for my love
+        </button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Halaman Galeri -->
+  <div id="page-gallery" class="page gallery-page">
+    <button class="back-btn" onclick="goToLetter()">← Kembali ke Surat</button>
+    <div class="gallery-header">
+      <div class="gallery-title">Our Memories</div>
+      <div class="gallery-sub">✦ Momen yg slalu mas ingat ✦</div>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+ 
+</div>
+ 
+<!-- Lightbox -->
+<div class="lightbox-wrap" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lbImg" src="" alt="">
+</div>
+ 
+<!-- Modal Edit -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>✦ Personalisasi Suratmu</h3>
+    <label>Nama / tanda tangan</label>
+    <input type="text" id="inp-name" value="Yang mencintaimu ♥">
+    <label>Salam pembuka</label>
+    <input type="text" id="inp-salutation" value="Sayangku,">
+    <label>Isi pesan utama</label>
+    <textarea id="inp-body">Kehadiranmu dalam hidupku bukan sekadar warna tambahan, kamu adalah cahayanya.</textarea>
+    <label>Postscript (P.S.)</label>
+    <input type="text" id="inp-ps" value="Terima kasih sudah memilih untuk ada di sisiku setiap hari.">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Batal</button>
+      <button class="btn-save" onclick="saveAndClose()">Simpan</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+  // Bintang
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*4}s;--o:${.4+Math.random()*.6};animation-delay:${Math.random()*5}s;`;
+    starsEl.appendChild(s);
+  }
+ 
+  // Hati melayang
+  const heartsEl = document.getElementById('hearts');
+  const hc = ['♥','❤','♡'];
+  function spawnHeart() {
+    const h = document.createElement('div');
+    h.className = 'floating-heart';
+    h.textContent = hc[Math.floor(Math.random() * 3)];
+    h.style.cssText = `left:${Math.random()*100}%;--dur:${5+Math.random()*6}s;--delay:0s;font-size:${10+Math.random()*20}px;color:hsl(${330+Math.random()*30}deg,70%,${60+Math.random()*20}%);`;
+    heartsEl.appendChild(h);
+    setTimeout(() => h.remove(), 12000);
+  }
+  setInterval(spawnHeart, 1200);
+ 
+  // ===== DATA =====
+  const PHOTO_COUNT = 5;
+  const VIDEO_COUNT = 1;
+ 
+  let images = [
+  "foto/foto1.JPEG",
+  "foto/foto2.JPEG",
+  "foto/foto3.JPEG",
+  "foto/foto4.JPEG",
+  "foto/foto5.JPEG"
+];
+ let videos = [
+  "foto/video1.mp4"
+];
+ 
+  while (images.length   < PHOTO_COUNT) images.push(null);
+  while (videos.length   < VIDEO_COUNT) videos.push(null);
+ 
+  function saveData() {
+    try {
+      localStorage.setItem('sc_images',   JSON.stringify(images));
+      localStorage.setItem('sc_videos',   JSON.stringify(videos));
+    } catch(e) { console.warn('localStorage penuh:', e); }
+  }
+ 
+  // ===== BUILD GALERI =====
+  function buildGallery() {
+    const grid = document.getElementById('galleryGrid');
+    grid.innerHTML = '';
+ 
+    // --- Baris atas: 3 foto ---
+    const photoRow = document.createElement('div');
+    photoRow.className = 'photo-row';
+ 
+    for (let i = 0; i < PHOTO_COUNT; i++) {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'display:flex;flex-direction:column;';
+ 
+      const slot = document.createElement('div');
+      slot.className = 'slot photo-slot' + (images[i] ? ' has-img' : '');
+ 
+      const img = document.createElement('img');
+      if (images[i]) img.src = images[i];
+ 
+      slot.addEventListener('click', (e) => {
+        if (images[i] && e.target.tagName !== 'INPUT') openLightbox(i);
+      });
+ 
+      const inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'image/*';
+      inp.addEventListener('click', e => e.stopPropagation());
+      inp.onchange = (e) => {
+        const f = e.target.files[0]; if (!f) return;
+        const r = new FileReader();
+        r.onload = (ev) => { images[i] = ev.target.result; saveData(); buildGallery(); };
+        r.readAsDataURL(f);
+      };
+ 
+      const ph = document.createElement('div');
+      ph.className = 'slot-placeholder';
+      ph.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg><span>Foto</span>`;
+ 
+      slot.appendChild(img);
+      slot.appendChild(ph);
+      slot.appendChild(inp);
+ 
+      const cap = document.createElement('input');
+ 
+      cell.appendChild(slot);
+      photoRow.appendChild(cell);
+    }
+ 
+    grid.appendChild(photoRow);
+ 
+    // --- Baris bawah: 2 video (di tengah) ---
+    const videoRow = document.createElement('div');
+    videoRow.className = 'video-row';
+ 
+    for (let i = 0; i < VIDEO_COUNT; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot video-slot' + (videos[i] ? ' has-video' : '');
+ 
+      const vid = document.createElement('video');
+      vid.controls = true;
+      vid.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+      if (videos[i]) vid.src = videos[i];
+ 
+      const ph = document.createElement('div');
+      ph.className = 'slot-placeholder';
+      ph.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Video</span>`;
+ 
+      slot.appendChild(vid);
+      slot.appendChild(ph);
+ 
+      videoRow.appendChild(slot);
+    }
+ 
+    grid.appendChild(videoRow);
+  }
+ 
+  buildGallery();
+ 
+  // Lightbox
+  function openLightbox(i) {
+    if (!images[i]) return;
+    document.getElementById('lbImg').src = images[i];
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function closeLightbox(e) {
+    if (!e || e.target === document.getElementById('lightbox') || e.currentTarget === document.querySelector('.lightbox-close'))
+      document.getElementById('lightbox').classList.remove('open');
+  }
+ 
+  // Amplop
+  let opened = false;
+  function openEnvelope() {
+    if (opened) return; opened = true;
+    document.getElementById('envelope').classList.add('open');
+    document.getElementById('hint').style.opacity = '0';
+    setTimeout(() => document.getElementById('letter').classList.add('visible'), 700);
+  }
+ 
+  // Navigasi
+  function goToGallery() {
+    document.getElementById('page-letter').classList.remove('active');
+    document.getElementById('page-gallery').classList.add('active');
+    window.scrollTo(0,0);
+  }
+  function goToLetter() {
+    document.getElementById('page-gallery').classList.remove('active');
+    document.getElementById('page-letter').classList.add('active');
+    window.scrollTo(0,0);
+  }
+ 
+  // Modal
+  function openModal()  { document.getElementById('modal').classList.add('open'); }
+  function closeModal() { document.getElementById('modal').classList.remove('open'); }
+  function saveAndClose() {
+    const name = document.getElementById('inp-name').value.trim() || 'Yang mencintaimu ♥';
+    const sal  = document.getElementById('inp-salutation').value.trim() || 'Sayangku,';
+    const body = document.getElementById('inp-body').value.trim();
+    const ps   = document.getElementById('inp-ps').value.trim();
+    document.getElementById('disp-name').textContent = name;
+    document.getElementById('disp-salutation').textContent = sal;
+    if (body) document.getElementById('disp-body2').innerHTML = body;
+    document.getElementById('disp-ps').textContent = ps ? `P.S. — ${ps}` : '';
+    closeModal();
+  }
+</script>
+</body>
+</html>
+ 
